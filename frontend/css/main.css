@@ -1,0 +1,35 @@
+.grid-container {
+  display: grid;
+  grid-template-columns: auto auto auto auto auto;
+  background-color: #2196F3;
+  padding: 10px;
+}
+
+.button-completed {
+  background-color: #21f32c;
+}
+
+.button {
+  background-color: #2196F3;
+}
+
+.grid-item {
+  background-color: #2196F3;
+  border: 1px solid rgba(0, 0, 0, 0.8);
+  padding: 20px;
+  font-size: 30px;
+  text-align: center;
+}
+
+.grid-item-completed {
+  background-color: #21f32c;
+  border: 1px solid rgba(0, 0, 0, 0.8);
+  padding: 20px;
+  font-size: 30px;
+  text-align: center;
+}
+
+.buttonwrapper {
+  display: flex;
+  flex-direction: column;
+}

@@ -1,0 +1,27 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>BINGO</title>
+  <link rel="stylesheet" href="/css/main.css">
+</head>
+<body>
+  <script type="text/javascript">
+      connstring = "ws://" + location.host + "/ws"
+      webSocket = new WebSocket(connstring);
+
+      webSocket.onmessage = function (event) {
+          msg = event.data.split(";")
+          item = document.getElementById(msg[0])
+          if (item === null) {
+            return
+          }
+
+          item.className = msg[1] === "true" ? "grid-item-completed" : "grid-item"
+      }
+  </script>
+  <div class="grid-container">
+    {{board}}
+  </div>
+</body>
+</html>
