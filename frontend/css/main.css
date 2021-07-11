@@ -48,6 +48,7 @@
 
 .miniboards {
   display: flex;
+  flex-wrap: wrap;
   flex-direction: row;
 }
 
@@ -59,6 +60,7 @@
 .playername {
   width: 260px;
   text-align: center;
+  color: #21e42b;
 }
 
 .wrapper {
@@ -77,4 +79,11 @@
 .buttonwrapper {
   display: flex;
   flex-direction: column;
+}
+
+body {
+  background-image: url('../assets/IMAGE_4.jpg');
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  background-size: cover;
 }
