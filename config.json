@@ -1,4 +1,4 @@
 {
-    "storagePath": ".\\store\\",
+    "storagePath": "./store/",
     "logLevel": "debug"
 }

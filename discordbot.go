@@ -109,7 +109,7 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 			return
 		}
 
-		jsonBingo, err := ioutil.ReadFile(config.StoragPath + command[2])
+		jsonBingo, err := ioutil.ReadFile(config.StoragePath + command[2])
 		if err != nil {
 			log.WithError(err).Error("Error reading bingo")
 			s.ChannelMessageSend(m.ChannelID, "Error")

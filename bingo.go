@@ -103,7 +103,7 @@ func contains(array []string, val string) bool {
 }
 
 func (b *Bingo) Store() error {
-	path := config.StoragPath
+	path := config.StoragePath
 
 	jsonBingo, err := json.MarshalIndent(b, "", "  ")
 	if err != nil {

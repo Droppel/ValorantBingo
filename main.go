@@ -13,8 +13,8 @@ import (
 )
 
 type Config struct {
-	StoragPath string `json:"storagePath"`
-	LogLevel   string `json:"logLevel"`
+	StoragePath string `json:"storagePath"`
+	LogLevel    string `json:"logLevel"`
 }
 
 var (
@@ -151,24 +151,30 @@ func handleBoard(resp http.ResponseWriter, req *http.Request) {
 		}
 	}
 
-	miniboards := `<div class="grid-container">`
+	miniboards := ""
 
+	playernames := ""
+
+	count := 0
 	for _, otherBoard := range bingo.Boards {
 		if otherBoard.Id == board.Id {
 			continue
 		}
+		playernames += `<p class="playername">` + otherBoard.UserName + `</p>`
 
-		for _, field := range board.Content {
+		miniboards += `<div class="grid-container-mini">`
+		for _, field := range otherBoard.Content {
 			field = strings.TrimSpace(field)
 			if bingo.Completed[field] {
-				miniboards += `<div class="grid-item-completed" id="` + field + `">` + field + "</div>"
+				miniboards += `<div class="grid-item-completed-mini" id="` + strconv.Itoa(count) + "/" + field + `">` + field + "</div>"
 			} else {
-				miniboards += `<div class="grid-item" id="` + field + `">` + field + "</div>"
+				miniboards += `<div class="grid-item-mini" id="` + strconv.Itoa(count) + "/" + field + `">` + field + "</div>"
 			}
 		}
-	}
 
-	miniboards += `</div>`
+		count++
+		miniboards += `</div>`
+	}
 
 	htmlTemplate, err := ioutil.ReadFile("frontend/board.html")
 	if err != nil {
@@ -177,6 +183,7 @@ func handleBoard(resp http.ResponseWriter, req *http.Request) {
 
 	html := strings.ReplaceAll(string(htmlTemplate), "{{board}}", body)
 	html = strings.ReplaceAll(html, "{{miniboards}}", miniboards)
+	html = strings.ReplaceAll(html, "{{playernames}}", playernames)
 
 	resp.Write([]byte(html))
 }
@@ -188,7 +195,7 @@ func readConfig() (Config, error) {
 		return Config{}, err
 	}
 
-	var config *Config
+	config := &Config{}
 	err = json.Unmarshal(configFile, config)
 	if err != nil {
 		return Config{}, err

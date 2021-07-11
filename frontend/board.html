@@ -18,13 +18,30 @@
           }
 
           item.className = msg[1] === "true" ? "grid-item-completed" : "grid-item"
+
+          miniboards = document.getElementById("miniboards")
+
+          for (i = 0; i < miniboards.childElementCount; i++) {
+                
+              item = document.getElementById(i + "/" + msg[0])
+              if (item === null) {
+                return
+              }
+
+              item.className = msg[1] === "true" ? "grid-item-completed-mini" : "grid-item-mini"
+          }
       }
   </script>
-  <div class="grid-container">
-    {{board}}
-  </div>
-  <div class=miniboards>
-    {{miniboards}}
+  <div class="wrapper">
+    <div class="grid-container" id="main">
+      {{board}}
+    </div>
+    <div class="playernames">
+      {{playernames}}
+    </div>
+    <div class="miniboards" id="miniboards">
+      {{miniboards}}
+    </div>
   </div>
 </body>
 </html>
