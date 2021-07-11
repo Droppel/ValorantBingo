@@ -2,7 +2,7 @@ Teamkill
 Ace
 Sheriff in Pistol
 Defuse stick
-Technical Pause
+#Technical Pause
 Judge 3k
 Ult denied
 Over in less than 30s
@@ -33,3 +33,5 @@ Full Flashed Kill
 Knife Kill
 Jett Ult Whiff
 Teabag
+Odin Buy
+Rope-Kill

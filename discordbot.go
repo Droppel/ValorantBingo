@@ -109,7 +109,7 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 			return
 		}
 
-		jsonBingo, err := ioutil.ReadFile(command[2])
+		jsonBingo, err := ioutil.ReadFile(config.StoragPath + command[2])
 		if err != nil {
 			log.WithError(err).Error("Error reading bingo")
 			s.ChannelMessageSend(m.ChannelID, "Error")
@@ -165,7 +165,12 @@ func reactionAdded(s *discordgo.Session, rea *discordgo.MessageReactionAdd) {
 		return
 	}
 
-	board := bin.CreateBoard(rea.UserID)
+	user, err := s.User(rea.UserID)
+	if err != nil {
+		return
+	}
+
+	board := bin.CreateBoard(rea.UserID, user.Username)
 
 	s.ChannelMessageSend(dmChannel.ID, "Here is a link to your Bingo board: http://droppel.ddns.net:8080/bingo/"+bin.Id+"/"+board.Id)
 }

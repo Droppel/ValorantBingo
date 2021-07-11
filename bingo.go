@@ -18,8 +18,9 @@ type Bingo struct {
 }
 
 type BingoBoard struct {
-	Content []string `json:"content"`
-	Id      string   `json:"id"`
+	Content  []string `json:"content"`
+	Id       string   `json:"id"`
+	UserName string   `json:"username"`
 }
 
 type Field struct {
@@ -55,7 +56,12 @@ func Create(_kind string, _size int) (*Bingo, error) {
 	return &bin, nil
 }
 
-func (bin *Bingo) CreateBoard(id string) BingoBoard {
+func (bin *Bingo) CreateBoard(id string, username string) BingoBoard {
+	existingBoard, exists := bin.Boards[id]
+	if exists {
+		return existingBoard
+	}
+
 	board := BingoBoard{}
 	board.Content = make([]string, 0, bin.Size)
 	for i := 0; i < bin.Size; i++ {
@@ -67,6 +73,7 @@ func (bin *Bingo) CreateBoard(id string) BingoBoard {
 	}
 
 	board.Id = id
+	board.UserName = username
 
 	bin.Boards[board.Id] = board
 
@@ -96,12 +103,14 @@ func contains(array []string, val string) bool {
 }
 
 func (b *Bingo) Store() error {
+	path := config.StoragPath
+
 	jsonBingo, err := json.MarshalIndent(b, "", "  ")
 	if err != nil {
 		return err
 	}
 
-	ioutil.WriteFile(b.Kind+"_"+b.Id+".json", jsonBingo, 0644)
+	ioutil.WriteFile(path+b.Kind+"_"+b.Id+".json", jsonBingo, 0644)
 
 	return nil
 }

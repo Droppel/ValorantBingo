@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"io/ioutil"
 	"math/rand"
 	"net/http"
@@ -11,13 +12,32 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+type Config struct {
+	StoragPath string `json:"storagePath"`
+	LogLevel   string `json:"logLevel"`
+}
+
 var (
 	bingos map[string]*Bingo
 	hub    *Hub
+	config Config
 )
 
 func main() {
-	log.SetLevel(log.DebugLevel)
+	var err error
+	config, err = readConfig()
+	if err != nil {
+		log.WithError(err).Error("Failed to parse the config")
+		return
+	}
+
+	logLevel, err := log.ParseLevel(config.LogLevel)
+	if err != nil {
+		log.WithError(err).Error("Could not parse the loglevel")
+		return
+	}
+
+	log.SetLevel(logLevel)
 	bingos = make(map[string]*Bingo)
 	rand.Seed(time.Now().UnixNano())
 
@@ -130,12 +150,49 @@ func handleBoard(resp http.ResponseWriter, req *http.Request) {
 			body += `<div class="grid-item" id="` + field + `">` + field + "</div>"
 		}
 	}
+
+	miniboards := `<div class="grid-container">`
+
+	for _, otherBoard := range bingo.Boards {
+		if otherBoard.Id == board.Id {
+			continue
+		}
+
+		for _, field := range board.Content {
+			field = strings.TrimSpace(field)
+			if bingo.Completed[field] {
+				miniboards += `<div class="grid-item-completed" id="` + field + `">` + field + "</div>"
+			} else {
+				miniboards += `<div class="grid-item" id="` + field + `">` + field + "</div>"
+			}
+		}
+	}
+
+	miniboards += `</div>`
+
 	htmlTemplate, err := ioutil.ReadFile("frontend/board.html")
 	if err != nil {
 		return
 	}
 
 	html := strings.ReplaceAll(string(htmlTemplate), "{{board}}", body)
+	html = strings.ReplaceAll(html, "{{miniboards}}", miniboards)
 
 	resp.Write([]byte(html))
+}
+
+func readConfig() (Config, error) {
+
+	configFile, err := ioutil.ReadFile("config.json")
+	if err != nil {
+		return Config{}, err
+	}
+
+	var config *Config
+	err = json.Unmarshal(configFile, config)
+	if err != nil {
+		return Config{}, err
+	}
+
+	return *config, nil
 }
