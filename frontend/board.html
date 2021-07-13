@@ -14,10 +14,10 @@
           msg = event.data.split(";")
           item = document.getElementById(msg[0])
           if (item === null) {
-            return
+            
+          } else {
+            item.className = msg[1] === "true" ? "grid-item-completed" : "grid-item"
           }
-
-          item.className = msg[1] === "true" ? "grid-item-completed" : "grid-item"
 
           miniboards = document.getElementById("miniboards")
 
@@ -25,7 +25,7 @@
                 
               item = document.getElementById(i + "/" + msg[0])
               if (item === null) {
-                return
+                continue
               }
 
               item.className = msg[1] === "true" ? "grid-item-completed-mini" : "grid-item-mini"

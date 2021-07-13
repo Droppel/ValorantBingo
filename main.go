@@ -18,9 +18,10 @@ type Config struct {
 }
 
 var (
-	bingos map[string]*Bingo
-	hub    *Hub
-	config Config
+	bingos   map[string]*Bingo
+	hub      *Hub
+	config   Config
+	password string
 )
 
 func main() {
@@ -38,6 +39,10 @@ func main() {
 	}
 
 	log.SetLevel(logLevel)
+
+	password = randSeq(8)
+	log.Info("Password: " + password)
+
 	bingos = make(map[string]*Bingo)
 	rand.Seed(time.Now().UnixNano())
 
@@ -67,6 +72,10 @@ func AddBingo(bin *Bingo) {
 }
 
 func handleCompleted(resp http.ResponseWriter, req *http.Request) {
+	if req.URL.Query().Get("pass") != password {
+		return
+	}
+
 	url := strings.Split(req.URL.Path, "/")
 	bingolink := url[2]
 	word := url[3]
