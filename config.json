@@ -1,4 +1,7 @@
 {
     "storagePath": "./store/",
-    "logLevel": "debug"
+    "logLevel": "debug",
+    "gameSettings": {
+        "totalRerolls": 2
+    }
 }

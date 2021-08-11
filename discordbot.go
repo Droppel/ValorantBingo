@@ -172,5 +172,5 @@ func reactionAdded(s *discordgo.Session, rea *discordgo.MessageReactionAdd) {
 
 	board := bin.CreateBoard(rea.UserID, user.Username)
 
-	s.ChannelMessageSend(dmChannel.ID, "Here is a link to your Bingo board: http://droppel.ddns.net:8080/bingo/"+bin.Id+"/"+board.Id)
+	s.ChannelMessageSend(dmChannel.ID, "Here is a link to your Bingo board: http://droppel.ddns.net:8080/bingo/"+bin.Id+"/"+board.Id+"?pass="+board.Password)
 }

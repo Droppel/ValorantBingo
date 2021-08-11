@@ -5,7 +5,6 @@
   grid-template-columns: repeat(5, 120px);
   grid-auto-rows: 120px;
   width: 600px;
-  align-self: center;
 }
 
 .grid-item {
@@ -66,6 +65,18 @@
 .wrapper {
   display: flex;
   flex-direction: column;
+}
+
+.main {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+}
+
+.reroll {
+  font-size: 20pt;
+  color: #21e42b;
+  margin: 50px;
 }
 
 .button-completed {

@@ -8,19 +8,21 @@ import (
 )
 
 type Bingo struct {
-	Kind      string                `json:"kind"`
-	Words     []string              `json:"words"`
-	Completed map[string]bool       `json:""`
-	Wordsize  int                   `json:"wordsize"`
-	Size      int                   `json:"size"`
-	Boards    map[string]BingoBoard `json:"boards"`
-	Id        string                `json:"id"`
+	Kind      string                 `json:"kind"`
+	Words     []string               `json:"words"`
+	Completed map[string]bool        `json:""`
+	Wordsize  int                    `json:"wordsize"`
+	Size      int                    `json:"size"`
+	Boards    map[string]*BingoBoard `json:"boards"`
+	Id        string                 `json:"id"`
 }
 
 type BingoBoard struct {
 	Content  []string `json:"content"`
 	Id       string   `json:"id"`
 	UserName string   `json:"username"`
+	Rerolls  int      `json:"rerolls"`
+	Password string   `json:"password"`
 }
 
 type Field struct {
@@ -29,7 +31,7 @@ type Field struct {
 }
 
 func Create(_kind string, _size int) (*Bingo, error) {
-	bin := Bingo{Kind: _kind, Size: _size, Id: randSeq(16), Boards: make(map[string]BingoBoard)}
+	bin := Bingo{Kind: _kind, Size: _size, Id: randSeq(16), Boards: make(map[string]*BingoBoard)}
 
 	wordsFile, err := ioutil.ReadFile("bingos/" + _kind + ".txt")
 	if err != nil {
@@ -56,13 +58,16 @@ func Create(_kind string, _size int) (*Bingo, error) {
 	return &bin, nil
 }
 
-func (bin *Bingo) CreateBoard(id string, username string) BingoBoard {
+func (bin *Bingo) CreateBoard(id string, username string) *BingoBoard {
 	existingBoard, exists := bin.Boards[id]
 	if exists {
 		return existingBoard
 	}
 
-	board := BingoBoard{}
+	board := &BingoBoard{}
+	board.Password = randSeq(8)
+	board.Rerolls = config.GameSettings.TotalRerolls
+
 	board.Content = make([]string, 0, bin.Size)
 	for i := 0; i < bin.Size; i++ {
 		randomField := bin.Words[rand.Intn(bin.Wordsize)]

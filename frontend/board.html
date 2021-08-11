@@ -12,6 +12,12 @@
 
       webSocket.onmessage = function (event) {
           msg = event.data.split(";")
+          if (msg[0] === "Reroll") {
+            let playerName = msg[1];
+            let oldElement = msg[2];
+            let newElement = msg[3];
+          }
+
           item = document.getElementById(msg[0])
           if (item === null) {
             
@@ -31,10 +37,44 @@
               item.className = msg[1] === "true" ? "grid-item-completed-mini" : "grid-item-mini"
           }
       }
+
+      function reroll(div) {
+        let rerolldiv = document.getElementById("reroll");
+        let rerollCountString = rerolldiv.innerHTML.replace("Rerolls: ", "").trim();
+        if (rerollCountString === "0") {
+          return;
+        }
+
+        ans = confirm("Dou you want to reroll '" + div.id + "'?");
+        if (!ans) {
+          return;
+        }
+
+        password = new URLSearchParams(window.location.search).get("pass");        
+        fetch("/reroll/" + location.pathname + "?pass=" + password  + "&value=" + div.id)
+            .then((response) => response.text())
+            .then(_data => {
+                split = _data.split(";");
+                if (split[0] === "") {
+                  return;
+                }
+                div.innerHTML = split[0];
+                div.id = split[0];
+                document.getElementById("reroll").innerHTML = "Rerolls: " + split[1];
+            })
+            .catch(error => {
+                console.error(error);
+            });
+      }
   </script>
   <div class="wrapper">
-    <div class="grid-container" id="main">
-      {{board}}
+    <div class="main">
+      <div class="grid-container" id="main">
+        {{board}}
+      </div>
+      <div class="reroll" id="reroll">
+        Rerolls: {{rerolls}}
+      </div>
     </div>
     <div class="playernames">
       {{playernames}}

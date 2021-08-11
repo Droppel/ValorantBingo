@@ -13,8 +13,13 @@ import (
 )
 
 type Config struct {
-	StoragePath string `json:"storagePath"`
-	LogLevel    string `json:"logLevel"`
+	StoragePath  string       `json:"storagePath"`
+	LogLevel     string       `json:"logLevel"`
+	GameSettings GameSettings `json:"gameSettings"`
+}
+
+type GameSettings struct {
+	TotalRerolls int `json:"totalRerolls"`
 }
 
 var (
@@ -54,6 +59,7 @@ func main() {
 	http.HandleFunc("/bingo/", handleBoard)
 	http.HandleFunc("/main/", handleMain)
 	http.HandleFunc("/completed/", handleCompleted)
+	http.HandleFunc("/reroll/", handleReroll)
 	http.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
 		serveWs(hub, w, r)
 	})
@@ -96,6 +102,71 @@ func handleCompleted(resp http.ResponseWriter, req *http.Request) {
 
 	hub.broadcast <- []byte(word + ";" + strconv.FormatBool(newValue))
 	bingo.Store()
+}
+
+func handleReroll(resp http.ResponseWriter, req *http.Request) {
+	if req.Method != http.MethodGet {
+		return
+	}
+
+	url := strings.Split(req.URL.Path, "/")
+	if len(url) < 4 {
+		return
+	}
+
+	bingolink := url[3]
+	boardlink := url[4]
+
+	submittedPass := req.URL.Query().Get("pass")
+	oldWord := req.URL.Query().Get("value")
+
+	bingo, exists := bingos[bingolink]
+	if !exists {
+		return
+	}
+	board, exists := bingo.Boards[boardlink]
+	if !exists {
+		return
+	}
+
+	if submittedPass != board.Password {
+		return
+	}
+
+	if board.Rerolls <= 0 {
+		return
+	}
+
+	possibleWords := copyArrayFromMap(bingo.Completed)
+	for word, val := range bingo.Completed {
+		if val {
+			index := findIndex(possibleWords, word)
+			if index >= 0 {
+				possibleWords = remove(possibleWords, index)
+			}
+		}
+	}
+	for _, word := range board.Content {
+		index := findIndex(possibleWords, word)
+		if index >= 0 {
+			possibleWords = remove(possibleWords, index)
+		}
+	}
+
+	if len(possibleWords) <= 0 {
+		return
+	}
+
+	newWord := possibleWords[rand.Intn(len(possibleWords))]
+
+	index := findIndex(board.Content, oldWord)
+
+	board.Content[index] = newWord
+	board.Rerolls -= 1
+
+	bingo.Store()
+	resp.Header().Add("content-type", "text/plain")
+	resp.Write([]byte(newWord + ";" + strconv.Itoa(board.Rerolls)))
 }
 
 func handleMain(resp http.ResponseWriter, req *http.Request) {
@@ -156,7 +227,7 @@ func handleBoard(resp http.ResponseWriter, req *http.Request) {
 		if bingo.Completed[field] {
 			body += `<div class="grid-item-completed" id="` + field + `">` + field + "</div>"
 		} else {
-			body += `<div class="grid-item" id="` + field + `">` + field + "</div>"
+			body += `<div class="grid-item" id="` + field + `" onclick="reroll(this)">` + field + "</div>"
 		}
 	}
 
@@ -193,6 +264,7 @@ func handleBoard(resp http.ResponseWriter, req *http.Request) {
 	html := strings.ReplaceAll(string(htmlTemplate), "{{board}}", body)
 	html = strings.ReplaceAll(html, "{{miniboards}}", miniboards)
 	html = strings.ReplaceAll(html, "{{playernames}}", playernames)
+	html = strings.ReplaceAll(html, "{{rerolls}}", strconv.Itoa(board.Rerolls))
 
 	resp.Write([]byte(html))
 }
@@ -211,4 +283,37 @@ func readConfig() (Config, error) {
 	}
 
 	return *config, nil
+}
+
+func findIndex(array []string, val string) int {
+	for i, s := range array {
+		if val == s {
+			return i
+		}
+	}
+	return -1
+}
+
+func copyArray(array []string) []string {
+	newArray := make([]string, len(array))
+	for i, s := range array {
+		newArray[i] = s
+	}
+	return newArray
+}
+
+func copyArrayFromMap(oldMap map[string]bool) []string {
+	newArray := make([]string, len(oldMap))
+	i := 0
+	for key := range oldMap {
+		newArray[i] = key
+		i++
+	}
+	return newArray
+}
+
+func remove(s []string, i int) []string {
+	s[i] = s[len(s)-1]
+	// We do not need to put s[i] at the end, as it will be discarded anyway
+	return s[:len(s)-1]
 }
