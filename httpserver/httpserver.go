@@ -2,6 +2,7 @@ package httpserver
 
 import (
 	"Bingo/bingo"
+	"Bingo/bot"
 	"Bingo/config"
 	"Bingo/webhub"
 	"io/ioutil"
@@ -9,6 +10,8 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+
+	log "github.com/sirupsen/logrus"
 )
 
 var (
@@ -35,8 +38,7 @@ func handleCompleted(resp http.ResponseWriter, req *http.Request) {
 
 	url := strings.Split(req.URL.Path, "/")
 	bingolink := url[2]
-	word := url[3]
-	word = strings.TrimSpace(word)
+	word := strings.TrimSpace(url[3])
 
 	bingo := bingo.Bingos[bingolink]
 	if req.URL.Query().Get("pass") != bingo.Password {
@@ -56,6 +58,13 @@ func handleCompleted(resp http.ResponseWriter, req *http.Request) {
 
 	hub.Broadcast <- []byte(word + ";" + strconv.FormatBool(newValue))
 	bingo.Store(config.Json.StoragePath)
+	finished := bingo.CheckFinished()
+	if len(finished) > 0 {
+		err := bot.BingoFinished(bingo)
+		if err != nil {
+			log.WithError(err).Error("Failed to Finish bingo")
+		}
+	}
 }
 
 func handleReroll(resp http.ResponseWriter, req *http.Request) {
