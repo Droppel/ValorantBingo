@@ -3,27 +3,19 @@ package httpserver
 import (
 	"Bingo/bingo"
 	"Bingo/config"
-	"Bingo/random"
 	"Bingo/webhub"
 	"io/ioutil"
 	"math/rand"
 	"net/http"
 	"strconv"
 	"strings"
-
-	log "github.com/sirupsen/logrus"
 )
 
 var (
-	hub      *webhub.Hub
-	password string
+	hub *webhub.Hub
 )
 
 func Listen() {
-
-	password = random.RandSeq(8)
-	log.Info("Password: " + password)
-
 	hub = webhub.NewHub()
 	go hub.Run()
 
@@ -40,9 +32,6 @@ func Listen() {
 }
 
 func handleCompleted(resp http.ResponseWriter, req *http.Request) {
-	if req.URL.Query().Get("pass") != password {
-		return
-	}
 
 	url := strings.Split(req.URL.Path, "/")
 	bingolink := url[2]
@@ -50,6 +39,9 @@ func handleCompleted(resp http.ResponseWriter, req *http.Request) {
 	word = strings.TrimSpace(word)
 
 	bingo := bingo.Bingos[bingolink]
+	if req.URL.Query().Get("pass") != bingo.Password {
+		return
+	}
 
 	newValue := false
 

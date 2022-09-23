@@ -18,6 +18,7 @@ type Bingo struct {
 	Boards    map[string]*BingoBoard `json:"boards"`
 	Id        string                 `json:"id"`
 	OwnerId   string                 `json:"ownerID"`
+	Password  string                 `json:"password"`
 }
 
 type BingoBoard struct {
@@ -44,7 +45,14 @@ func AddBingo(bin *Bingo) {
 }
 
 func Create(ownerId string, _kind string, _size int) (*Bingo, error) {
-	bin := Bingo{OwnerId: ownerId, Kind: _kind, Size: _size, Id: random.RandSeq(16), Boards: make(map[string]*BingoBoard)}
+	bin := Bingo{
+		OwnerId:  ownerId,
+		Kind:     _kind,
+		Size:     _size,
+		Id:       random.RandSeq(16),
+		Boards:   make(map[string]*BingoBoard),
+		Password: random.RandSeq(8),
+	}
 
 	wordsFile, err := ioutil.ReadFile("bingos/" + _kind + ".txt")
 	if err != nil {

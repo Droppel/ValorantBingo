@@ -8,7 +8,8 @@
 <body>
     <script type="text/javascript">
 
-        var pass = ""
+        const urlParams = new URLSearchParams(window.location.search);
+        const pass = urlParams.get('pass');
 
         connstring = "ws://" + location.host + "/ws"
         webSocket = new WebSocket(connstring);
@@ -27,13 +28,8 @@
         function onClick(button) {
             fetch("/completed/" + button.value + "?pass=" + pass);
         }
-
-        function enterPasscode() {
-            pass = prompt("Enter passcode")
-        }
     </script>
     <div class="buttonwrapper">
-        <button onclick="enterPasscode()" class="button-completed">Enter Password</button>
         {{body}}
     </div>
 </body>

@@ -83,7 +83,7 @@ var (
 				log.WithError(err).Error("Could not create Userchannel")
 				return
 			}
-			s.ChannelMessageSend(dmChannel.ID, "Here is the link to your Bingo boards Management plane: http://droppel.ddns.net:8080/main/"+bin.Id+"/")
+			s.ChannelMessageSend(dmChannel.ID, "Here is the link to your Bingo boards Management plane: http://droppel.ddns.net:8080/main/"+bin.Id+"/?pass="+bin.Password)
 
 			msg, err := s.ChannelMessageSend(i.ChannelID, "Bingo created with id: "+bin.Id+". React with 🎫 to join.")
 			MessageToBingo[msg.ID] = bin
