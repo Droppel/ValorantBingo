@@ -2,25 +2,23 @@ Teamkill
 Ace
 Sheriff in Pistol
 Defuse stick
-#Technical Pause
-Judge 3k
+Judge Double Kill
 Ult denied
-Over in less than 30s
+Firstblood in 5s
 Round over with 7 Alive
 1v3 Clutch
 Molotov Death
-Skye Doggo kill
-Sova Ult Double kill
+Non Lethal Util kill
+Ult Double kill
 Pistol vs Op win
 Thrifty
-3k with one spray
+3k with one magazine
 Jumping Headshot
 Noscope
 Round won with noone alive
 Guardian buy
 Shorty kill
-Raze Ult miss
-Aylin Brimstone Ult
+Ult whiff
 Killjoy Ult Detain
 180 Flick kill
 Defuse less than 1s
@@ -31,7 +29,11 @@ Double Overtime
 Glasscanon Op
 Full Flashed Kill
 Knife Kill
-Jett Ult Whiff
 Teabag
 Odin Buy
 Rope-Kill
+Grim Wall
+Spike kills 3
+Loose Mappick
+Timeloss
+Team Ace

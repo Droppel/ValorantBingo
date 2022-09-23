@@ -1,6 +1,8 @@
-package main
+package bingo
 
 import (
+	"Bingo/config"
+	"Bingo/random"
 	"encoding/json"
 	"io/ioutil"
 	"math/rand"
@@ -15,6 +17,7 @@ type Bingo struct {
 	Size      int                    `json:"size"`
 	Boards    map[string]*BingoBoard `json:"boards"`
 	Id        string                 `json:"id"`
+	OwnerId   string                 `json:"ownerID"`
 }
 
 type BingoBoard struct {
@@ -30,8 +33,18 @@ type Field struct {
 	Completed bool   `json:"completed"`
 }
 
-func Create(_kind string, _size int) (*Bingo, error) {
-	bin := Bingo{Kind: _kind, Size: _size, Id: randSeq(16), Boards: make(map[string]*BingoBoard)}
+var (
+	Bingos map[string]*Bingo
+)
+
+func AddBingo(bin *Bingo) {
+	id := bin.Id
+
+	Bingos[id] = bin
+}
+
+func Create(ownerId string, _kind string, _size int) (*Bingo, error) {
+	bin := Bingo{OwnerId: ownerId, Kind: _kind, Size: _size, Id: random.RandSeq(16), Boards: make(map[string]*BingoBoard)}
 
 	wordsFile, err := ioutil.ReadFile("bingos/" + _kind + ".txt")
 	if err != nil {
@@ -54,19 +67,19 @@ func Create(_kind string, _size int) (*Bingo, error) {
 
 	bin.Wordsize = len(bin.Words)
 
-	bin.Store()
+	bin.Store(config.Json.StoragePath)
 	return &bin, nil
 }
 
-func (bin *Bingo) CreateBoard(id string, username string) *BingoBoard {
+func (bin *Bingo) CreateBoard(id string, username string, totalRerolls int) *BingoBoard {
 	existingBoard, exists := bin.Boards[id]
 	if exists {
 		return existingBoard
 	}
 
 	board := &BingoBoard{}
-	board.Password = randSeq(8)
-	board.Rerolls = config.GameSettings.TotalRerolls
+	board.Password = random.RandSeq(8)
+	board.Rerolls = totalRerolls
 
 	board.Content = make([]string, 0, bin.Size)
 	for i := 0; i < bin.Size; i++ {
@@ -82,18 +95,8 @@ func (bin *Bingo) CreateBoard(id string, username string) *BingoBoard {
 
 	bin.Boards[board.Id] = board
 
-	bin.Store()
+	bin.Store(config.Json.StoragePath)
 	return board
-}
-
-var letters = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
-
-func randSeq(n int) string {
-	b := make([]rune, n)
-	for i := range b {
-		b[i] = letters[rand.Intn(len(letters))]
-	}
-	return string(b)
 }
 
 func contains(array []string, val string) bool {
@@ -107,9 +110,7 @@ func contains(array []string, val string) bool {
 	return false
 }
 
-func (b *Bingo) Store() error {
-	path := config.StoragePath
-
+func (b *Bingo) Store(path string) error {
 	jsonBingo, err := json.MarshalIndent(b, "", "  ")
 	if err != nil {
 		return err
