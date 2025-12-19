@@ -6,7 +6,7 @@ import (
 )
 
 func TestCreateBoard(t *testing.T) {
-	bin, err := Create("12345", "valorant", 5)
+	bin, err := Create("12345", "", "valorant", 5)
 
 	if err != nil {
 		t.Fail()

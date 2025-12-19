@@ -34,6 +34,10 @@ var (
 							Name:  "valorant",
 							Value: "valorant",
 						},
+						{
+							Name:  "sekiro",
+							Value: "sekiro",
+						},
 					},
 				},
 			},
@@ -86,7 +90,7 @@ var (
 				log.WithError(err).Error("Could not create Userchannel")
 				return
 			}
-			s.ChannelMessageSend(dmChannel.ID, "Here is the link to your Bingo boards Management plane: http://droppel.ddns.net:8080/main/"+bin.Id+"/?pass="+bin.Password)
+			s.ChannelMessageSend(dmChannel.ID, "Here is the link to your Bingo boards Management plane: http://droppel.net:8080/main/"+bin.Id+"/?pass="+bin.Password)
 
 			msg, err := s.ChannelMessageSend(i.ChannelID, "Bingo created with id: "+bin.Id+". React with 🎫 to join.")
 			MessageToBingo[msg.ID] = bin
@@ -290,7 +294,10 @@ func BingoFinished(bin *bingo.Bingo) error {
 	time.Sleep(250 * time.Millisecond)
 
 	// Start speaking.
-	vc.Speaking(true)
+	err = vc.Speaking(true)
+	if err != nil {
+		return err
+	}
 
 	// Send the buffer data.
 	for _, buff := range buffer {
@@ -298,13 +305,19 @@ func BingoFinished(bin *bingo.Bingo) error {
 	}
 
 	// Stop speaking
-	vc.Speaking(false)
+	err = vc.Speaking(false)
+	if err != nil {
+		return err
+	}
 
 	// Sleep for a specificed amount of time before ending.
 	time.Sleep(250 * time.Millisecond)
 
 	// Disconnect from the provided voice channel.
-	vc.Disconnect()
+	err = vc.Disconnect()
+	if err != nil {
+		return err
+	}
 
 	return err
 }
@@ -338,6 +351,6 @@ func reactionAdded(s *discordgo.Session, rea *discordgo.MessageReactionAdd) {
 
 	board := bin.CreateBoard(rea.UserID, user.Username, config.Json.GameSettings.TotalRerolls)
 
-	s.ChannelMessageSend(dmChannel.ID, "Here is a link to your Bingo board: http://droppel.ddns.net:8080/bingo/"+bin.Id+"/"+board.Id+"?pass="+board.Password)
+	s.ChannelMessageSend(dmChannel.ID, "Here is a link to your Bingo board: http://droppel.net:8080/bingo/"+bin.Id+"/"+board.Id+"?pass="+board.Password)
 
 }
